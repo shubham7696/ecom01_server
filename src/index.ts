@@ -1,21 +1,24 @@
 
 import dotenv from "dotenv";
-
-//dotenv config
-dotenv.config({ path: "./.env" });
-
 import express from "express";
 import http from "http";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
+import multer from "multer"
 import connectDb from "../config/db";
 import V1Routes from "../v1/routes/allV1Routes"
 
 
+//dotenv config
+dotenv.config({ path: "./.env" });
+
 // rest objects
 const app = express();
+
+// multer upload
+const upload = multer({dest: "uploads/"});
 
 //middlewares
 const corsOptions = {
