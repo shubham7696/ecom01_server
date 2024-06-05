@@ -36,4 +36,14 @@ export const UserSchema = new mongoose.Schema({
       select: false,
     },
   },
-});
+}, {timestamps: true});
+
+// Set field projections
+// UserSchema.set('toJSON', {
+//   transform: (doc, ret) => {
+//     // Remove sensitive fields from the serialized document
+//     delete ret.authentication;
+//     delete ret.__v;
+//     return ret;
+//   }
+// });
