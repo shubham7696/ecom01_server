@@ -6,7 +6,7 @@ import { printConsoleLog, printConsoleLogs } from "../../../utils/printConsoleLo
 export const getAllUserController = async (req: express.Request, res: express.Response) => {
   try {
     printConsoleLog(req.body);
-    printConsoleLog(req.file);
+    // printConsoleLog(req.file);
     return res.redirect("/");
   } catch(error) {
     printConsoleLogs("==========",error, "==========", `${"some"}`)

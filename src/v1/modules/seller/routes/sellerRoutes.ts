@@ -1,6 +1,6 @@
 import express from 'express';
-import {registerSellerController} from "../controller/seller/sellerController"
-import { isAuthenticated } from '../middleware/authMiddlewares';
+import {registerSellerController, loginSellerController} from "../controller/sellerController"
+import { isAuthenticated } from '../../../middleware/authMiddlewares';
 
 // router object
 const router = express.Router();
@@ -10,7 +10,7 @@ const router = express.Router();
 router.post("/register", registerSellerController);
 
 // LOGIN || POST
-// router.post("/login", loginUserController);
+router.post("/login", loginSellerController);
 
 // GET ALL USERS || GET
 // router.get("/allUsers", isAuthenticated, getAllUserController);

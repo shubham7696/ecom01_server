@@ -1,5 +1,5 @@
-import userRoutes from "./userRoutes";
-import sellerRoutes from "./sellerRoutes";
+import userRoutes from "../modules/user/routes/userRoutes";
+import sellerRoutes from "../modules/seller/routes/sellerRoutes";
 
 const allV1Routes = [
   { path: '/api/v1/user', route: userRoutes },

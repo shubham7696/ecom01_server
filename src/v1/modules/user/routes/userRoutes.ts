@@ -1,6 +1,6 @@
 import express from 'express';
-import { registerUserController, loginUserController, getAllUserController, deleteUserController, updateUserController, logoutUserController, refreshTokenController } from '../controller/user/userController';
-import { isAuthenticated } from '../middleware/authMiddlewares';
+import { registerUserController, loginUserController, getAllUserController, deleteUserController, updateUserController, logoutUserController, refreshTokenController } from '../controller/userController';
+import { isAuthenticated } from '../../../middleware/authMiddlewares';
 
 // router object
 const router = express.Router();

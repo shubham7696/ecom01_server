@@ -8,7 +8,7 @@ import compression from "compression";
 import cors from "cors";
 import multer from "multer"
 import connectDb from "../config/db";
-import V1Routes from "../v1/routes/allV1Routes"
+import V1Routes from "./v1/routes/allV1Routes"
 
 
 //dotenv config

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { SellerSchema } from "../../models/sellers/sellers";
+import { SellerSchema } from "../models/sellers";
 
 export const SellerModel = mongoose.model("Sellers", SellerSchema);
 
@@ -10,6 +10,31 @@ export const getSellerByPhone = (userPhoneNumber: String) => SellerModel.findOne
 export const getSellerByPan = (pan: String) => SellerModel.findOne({ pan });
 export const getSellerBySessionToken = (sessionToken: String) => SellerModel.findOne({ 'authentication.sessionToken': sessionToken });
 export const getSellerById = (id: String) => SellerModel.findById({ _id: id });
+
+
+export const getSellerByEmailOrPhone = (emailOrPhone: string) => {
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOrPhone);
+  if (isEmail) {
+    return getSellerByEmail(emailOrPhone);
+  } else {
+    return getSellerByPhone(emailOrPhone);
+  }
+};
+
+// Get seller by various fields
+// export const getSellerByFields = (fields: { email: string; userPhoneNumber: string; pan: string; }) => {
+//   const query = {};
+//   if (fields.email) {
+//     query.email = fields.email;
+//   }
+//   if (fields.userPhoneNumber) {
+//     query.userPhoneNumber = fields.userPhoneNumber;
+//   }
+//   if (fields.pan) {
+//     query.pan = fields.pan;
+//   }
+//   return SellerModel.findOne(query);
+// };
 
 // Create new seller
 export const createSeller = (values: Record<string, any>) => new SellerModel(values).save().then((seller) => seller.toObject());

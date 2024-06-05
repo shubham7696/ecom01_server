@@ -1,10 +1,10 @@
 import express from "express";
 import { createUser, deleteUserById, getUsers, getUserByEmail, getUserById, getUserByPhone, updateUserById } from "./userHelper";
-import { comparePasswords, encryptPassword } from "../../../utils/encryptDecrypt";
+import { comparePasswords, encryptPassword } from "../../../../utils/encryptDecrypt";
 import jwt from "jsonwebtoken"
-import "../../../common/appConstants"
-import {printConsoleLog, printConsoleLogs} from "../../../utils/printConsoleLog"
-import { appCookieConst } from "../../../common/appConstants";
+import "../../../../common/appConstants"
+import {printConsoleLog, printConsoleLogs} from "../../../../utils/printConsoleLog"
+import { appCookieConst } from "../../../../common/appConstants";
 
 // REGISTER NEW USER. ========================================
 export const registerUserController = async (req: express.Request, res: express.Response) => {
