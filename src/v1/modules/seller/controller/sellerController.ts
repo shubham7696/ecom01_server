@@ -1,10 +1,9 @@
 import express from 'express';
 import { comparePasswords, encryptPassword } from '../../../../utils/encryptDecrypt';
 import jwt from 'jsonwebtoken';
-import '../../../../common/appConstants';
 import { printConsoleLog, printConsoleLogs } from '../../../../utils/printConsoleLog';
 import { appCookieConst } from '../../../../common/appConstants';
-import { createSeller, getSellerByEmail, getSellerByEmailOrPhone, getSellerByPan, getSellerByPhone } from './sellerHelper';
+import { createSeller, getSellerByEmail, getSellerByEmailOrPhone, getSellerById, getSellerByPan, getSellerByPhone, getSellers } from './sellerHelper';
 
 // // FIND BEFORE REGISTER NEW SELLER ========================================
 // export const findSellerController = async (req: express.Request, res: express.Response) => {
@@ -107,151 +106,99 @@ export const loginSellerController = async (req: express.Request, res: express.R
   }
 };
 
-// // LOGOUT SELLER ========================================
-// export const logoutSellerController = async (req: express.Request, res: express.Response) => {
-//   try {
-//     const { sellerId } = req.params;
-//     const seller = await Seller.findById(sellerId);
-//     if (!seller) {
-//       return res.status(400).send({ message: "Seller not found", success: false });
-//     }
+// LOGOUT SELLER ========================================
+export const logoutSellerController = async (req: express.Request, res: express.Response) => {
+  try {
+    const { id } = req.params;
+    const seller = await getSellerById(id);
+    if (!seller) {
+      return res.status(400).send({ message: "Seller not found", success: false });
+    }
 
-//     seller.authentication.sessionToken = null;
-//     await seller.save();
-//     res.clearCookie(appCookieConst);
+    seller.authentication.sessionToken = null;
+    await seller.save();
+    res.clearCookie(appCookieConst);
 
-//     return res.status(200).send({ message: "Logout successful", success: true });
-//   } catch (error) {
-//     console.error("Error logging out seller:", error);
-//     return res.status(500).send({ message: "Failed to logout seller", success: false });
-//   }
-// };
+    return res.status(200).send({ message: "Logout successful", success: true });
+  } catch (error) {
+    console.error("Error logging out seller:", error);
+    return res.status(500).send({ message: "Failed to logout seller", success: false });
+  }
+};
 
 // // REFRESH TOKEN ========================================
-// export const refreshTokenSellerController = async (req: express.Request, res: express.Response) => {
-//   try {
-//     const { id } = req.params;
-//     const seller = await Seller.findById(id);
-//     if (!seller) {
-//       return res.status(400).send({ message: "Seller not found", success: false });
-//     }
+export const refreshSellerTokenController = async (req: express.Request, res: express.Response) => {
+  try {
+    const { id } = req.params;
+    const seller = await getSellerById(id);
+    if (!seller) {
+      return res.status(400).send({ message: "Seller not found", success: false });
+    }
 
-//     const newToken = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-//     seller.authentication.sessionToken = newToken;
-//     await seller.save();
+    const newToken = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    seller.authentication.sessionToken = newToken;
+    await seller.save();
 
-//     res.cookie(appCookieConst, newToken, { domain: 'localhost', path: '/' });
-//     return res.status(200).send({ message: "Token refreshed", success: true, seller, newToken });
-//   } catch (error) {
-//     console.error("Error refreshing token:", error);
-//     return res.status(500).send({ message: "Failed to refresh token", success: false });
-//   }
-// };
+    res.cookie(appCookieConst, newToken, { domain: 'localhost', path: '/' });
+    return res.status(200).send({ message: "Token refreshed", success: true, seller, newToken });
+  } catch (error) {
+    printConsoleLogs("Error refreshing token:", error);
+    return res.status(500).send({ message: "Failed to refresh token", success: false });
+  }
+};
 
-// // UPDATE SELLER ========================================
-// export const updateSellerController = async (req: express.Request, res: express.Response) => {
-//   try {
-//     const { id } = req.params;
-//     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
-//       return res.status(400).send({ message: "Invalid Seller ID!", success: false });
-//     }
+// GET ALL SELLERs  ========================================
+export const getAllSellerController = async (req: express.Request, res: express.Response) => {
+  try {
+    const sellers = await getSellers();
+    printConsoleLog("Here=====")
+    return res.status(200).send({ message: "Sellers fetched", success: true, data: sellers });
+  } catch(error) {
+    printConsoleLogs("==========",error, "==========", `${"some"}`)
+    return res.status(500).send({ message: "Unable to fetch Sellers", success: false });
+  }
+}
 
-//     const seller = await Seller.findById(id);
-//     if (!seller) {
-//       return res.status(400).send({ message: "Seller not found!", success: false });
-//     }
+// UPDATE SELLER ========================================
+export const updateSellerController = async (req: express.Request, res: express.Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send({ message: "Invalid Seller ID!", success: false });
+    }
 
-//     const { fullName, email, userPhoneNumber, gender, bankDetails, profilePicture, panPicture, storeName, storeLocation, storeGstNumber, storeContactDetails, storeTiming } = req.body;
+    const seller = await getSellerById(id);
+    if (!seller) {
+      return res.status(400).send({ message: "Seller not found!", success: false });
+    }
 
-//     if (fullName) seller.fullName = fullName;
-//     if (email) seller.email = email;
-//     if (userPhoneNumber) seller.userPhoneNumber = userPhoneNumber;
-//     if (gender) seller.gender = gender;
-//     if (bankDetails) seller.bankDetails = bankDetails;
-//     if (profilePicture) seller.profilePicture = profilePicture;
-//     if (panPicture) seller.panPicture = panPicture;
+    const { fullName, email, userPhoneNumber, gender, bankDetails, profilePicture, panPicture} = req.body;
 
-//     if (storeName) seller.store.name = storeName;
-//     if (storeLocation) seller.store.location = storeLocation;
-//     if (storeGstNumber) seller.store.gstNumber = storeGstNumber;
-//     if (storeContactDetails) seller.store.contactDetails = storeContactDetails;
-//     if (storeTiming) seller.store.timing = storeTiming;
+     // Check if the new userPhoneNumber is the same as the current one
+    if (userPhoneNumber !== seller.userPhoneNumber) {
+      // Check if the new userPhoneNumber already exists in the database
+      const existingSeller = await getSellerByPhone(userPhoneNumber);
+      if (existingSeller && existingSeller._id.toString() !== id) {
+        // If it exists and belongs to a different seller, throw an error
+        return res.status(400).send({ message: "User phone number already exists", success: false });
+      }
+    }
 
-//     await seller.save();
+    if (fullName) seller.fullName = fullName;
+    if (email) seller.email = email;
+    if (userPhoneNumber) seller.userPhoneNumber = userPhoneNumber;
+    if (gender) seller.gender = gender;
+    if (bankDetails) seller.bankDetails = bankDetails;
+    if (profilePicture) seller.profilePicture = profilePicture;
+    if (panPicture) seller.panPicture = panPicture;
 
-//     const updatedSeller = await Seller.findById(id);
+    await seller.save();
 
-//     return res.status(200).send({ message: "Seller updated", success: true, data: updatedSeller });
-//   } catch (error) {
-//     printConsoleLogs("==========", error, "==========", "some");
-//     return res.status(500).send({ message: "Failed to update seller", success: false });
-//   }
-// };
+    const updatedSeller = await getSellerById(id);
 
-// // ADD STORE ========================================
-// export const addStoreController = async (req: express.Request, res: express.Response) => {
-//   try {
-//     const { id } = req.params;
-//     const seller = await Seller.findById(id);
-//     if (!seller) {
-//       return res.status(400).send({ message: "Seller not found", success: false });
-//     }
-
-//     const { storeName, storeLocation, storeGstNumber, storeContactDetails, storeTiming } = req.body;
-
-//     if (!storeName || !storeLocation || !storeGstNumber || !storeContactDetails || !storeTiming) {
-//       return res.status(400).send({ message: "Please fill all store details", success: false });
-//     }
-
-//     seller.store = {
-//       name: storeName,
-//       location: storeLocation,
-//       gstNumber: storeGstNumber,
-//       contactDetails: storeContactDetails,
-//       timing: storeTiming,
-//     };
-
-//     await seller.save();
-
-//     return res.status(200).send({ message: "Store added", success: true, data: seller });
-//   } catch (error) {
-//     console.error("Error adding store:", error);
-//     return res.status(500).send({ message: "Failed to add store", success: false });
-//   }
-// };
-
-
-// UPDATE STORE DETAILS ========================================
-// export const updateStoreDetailsController = async (req: express.Request, res: express.Response) => {
-//   try {
-//     const { sellerId, storeName, storeLocation, storeGstNumber, storeContactDetails, storeTiming } = req.body;
-
-//     const updatedSeller = await SellerModel.findByIdAndUpdate(
-//       sellerId,
-//       {
-//         store: {
-//           name: storeName,
-//           location: storeLocation,
-//           gstNumber: storeGstNumber,
-//           contactDetails: storeContactDetails,
-//           timing: storeTiming,
-//         },
-//       },
-//       { new: true, runValidators: true }
-//     );
-
-//     if (!updatedSeller) {
-//       return res.status(404).send({ message: "Seller not found", success: false });
-//     }
-
-//     return res.status(200).json(updatedSeller);
-//   } catch (error) {
-//     console.error("Error updating store details:", error);
-//     if (error.name === "ValidationError") {
-//       const messages = Object.values(error.errors).map((err: any) => err.message);
-//       return res.status(400).send({ message: messages.join(", "), success: false });
-//     } else {
-//       return res.status(500).send({ message: "Unable to update store details", success: false });
-//     }
-//   }
-// };
+    return res.status(200).send({ message: "Seller updated", success: true, data: updatedSeller });
+  } catch (error) {
+    printConsoleLogs("==========", error, "==========", "some");
+    return res.status(500).send({ message: "Failed to update seller", success: false });
+  }
+};

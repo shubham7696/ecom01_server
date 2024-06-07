@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { SellerSchema } from "../models/sellers";
+import { SellerModel } from "../models/sellers";
 
-export const SellerModel = mongoose.model("Sellers", SellerSchema);
+
 
 // Get sellers from the database, including only the necessary fields
 export const getSellers = () => SellerModel.find({}, { _id: 1, fullName: 1, email: 1, userPhoneNumber: 1, pan: 1, gender: 1, profilePicture: 1, panPicture: 1, store: 1, __v: 1 });
@@ -44,3 +44,4 @@ export const deleteSellerById = (id: String) => SellerModel.findOneAndDelete({ _
 
 // Update seller
 export const updateSellerById = (id: String, values: Record<string, any>) => SellerModel.findByIdAndUpdate({ _id: id }, values, { new: true });
+

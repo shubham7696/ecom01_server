@@ -50,15 +50,7 @@ export const SellerSchema = new mongoose.Schema({
       select: false,
     },
   },
-  store: {
-    name: { type: String, required: false },
-    location: { type: String, required: false },
-    gstNumber: {
-      type: String,
-      required: false,
-      match: [/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, "Please fill a valid GST number"],
-    },
-    contactDetails: { type: String, required: false },
-    timing: { type: String, required: false },
-  },
+  stores: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Store' }],
 }, { timestamps: true });
+
+export const SellerModel = mongoose.model("Sellers", SellerSchema);

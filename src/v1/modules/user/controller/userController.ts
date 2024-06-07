@@ -94,8 +94,8 @@ export const loginUserController = async (req: express.Request, res: express.Res
 // LOGOUT USER ========================================
 export const logoutUserController = async (req: express.Request, res: express.Response) => {
   try {
-    const { userId } = req.params;
-    const user = await getUserById(userId);
+    const { id } = req.params;
+    const user = await getUserById(id);
     if (!user) {
       return res.status(400).send({ message: "User not found", success: false });
     }
