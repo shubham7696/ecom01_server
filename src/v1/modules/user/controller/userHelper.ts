@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
-import { UserSchema } from "../../models/users/users";
+import { UserSchema } from "../models/userModel";
 
 export const UserModel = mongoose.model("User", UserSchema);
 
 // get user by different methods.
 // Fetch users from the database, including only the necessary fields
 export const getUsers = () => UserModel.find({}, { _id: 1, fullName: 1, email: 1, userPhoneNumber: 1, gender: 1, profilePicture: 1, __v: 1 });
+
 export const getUserByEmail = (email: String) => UserModel.findOne({email});
 export const getUserByPhone = (userPhoneNumber: String) => UserModel.findOne({userPhoneNumber});
 export const getUserBySessionToken = (sessionToken: String) => UserModel.findOne({'authentication.sessionToken': sessionToken});

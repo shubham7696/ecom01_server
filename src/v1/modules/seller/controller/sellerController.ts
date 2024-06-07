@@ -1,10 +1,26 @@
 import express from 'express';
-import { comparePasswords, encryptPassword } from '../../../utils/encryptDecrypt';
+import { comparePasswords, encryptPassword } from '../../../../utils/encryptDecrypt';
 import jwt from 'jsonwebtoken';
-import '../../../common/appConstants';
-import { printConsoleLog, printConsoleLogs } from '../../../utils/printConsoleLog';
-import { appCookieConst } from '../../../common/appConstants';
-import "./sellerHelper";
+import { printConsoleLog, printConsoleLogs } from '../../../../utils/printConsoleLog';
+import { appCookieConst } from '../../../../common/appConstants';
+import { createSeller, getSellerByEmail, getSellerByEmailOrPhone, getSellerById, getSellerByPan, getSellerByPhone, getSellers } from './sellerHelper';
+
+// // FIND BEFORE REGISTER NEW SELLER ========================================
+// export const findSellerController = async (req: express.Request, res: express.Response) => {
+//   try {
+//     const { email, userPhoneNumber, pan } = req.body;
+//     const { seller, matchedField } = await getSellerByFields({ email, userPhoneNumber, pan });
+
+//     if (!seller) {
+//       return registerSellerController(req,res)
+//     }
+
+//     return res.status(200).send({ message: `${matchedField} is already registered`, success: true, data: seller });
+//   } catch (error) {
+//     console.error("Error finding seller:", error);
+//     return res.status(500).send({ message: "Failed to find seller", success: false });
+//   }
+// };
 
 // REGISTER NEW SELLER ========================================
 export const registerSellerController = async (req: express.Request, res: express.Response) => {
@@ -15,24 +31,24 @@ export const registerSellerController = async (req: express.Request, res: expres
       return res.status(400).send({ message: "Please fill all mandatory details", success: false });
     }
 
-    const existingEmailSeller = await Seller.findOne({ email });
+    const existingEmailSeller = await getSellerByEmail(email);
     if (existingEmailSeller) {
       return res.status(400).send({ message: "Email already exists", success: false });
     }
 
-    const existingPhoneSeller = await Seller.findOne({ userPhoneNumber });
+    const existingPhoneSeller = await getSellerByPhone(userPhoneNumber);
     if (existingPhoneSeller) {
       return res.status(400).send({ message: "Phone number already exists", success: false });
     }
 
-    const existingPanSeller = await Seller.findOne({ pan });
+    const existingPanSeller = await getSellerByPan(pan);
     if (existingPanSeller) {
       return res.status(400).send({ message: "PAN already exists", success: false });
     }
 
     const hashedPassword = await encryptPassword(password);
 
-    const newSeller = new Seller({
+    const newSeller = await createSeller({
       fullName,
       email,
       userPhoneNumber,
@@ -42,18 +58,9 @@ export const registerSellerController = async (req: express.Request, res: expres
       profilePicture,
       panPicture,
       authentication: { password: hashedPassword },
-      store: {
-        name: req.body.storeName,
-        location: req.body.storeLocation,
-        gstNumber: req.body.storeGstNumber,
-        contactDetails: req.body.storeContactDetails,
-        timing: req.body.storeTiming,
-      },
     });
 
-    await newSeller.save();
-
-    return res.status(200).json(newSeller);
+    return res.status(200).send({message: "New Seller added", success: true, seller: newSeller});
   } catch (error) {
     printConsoleLog(error);
     if (error.name === "ValidationError") {
@@ -68,23 +75,23 @@ export const registerSellerController = async (req: express.Request, res: expres
   }
 };
 
-// LOGIN SELLER ========================================
+// // LOGIN SELLER ========================================
 export const loginSellerController = async (req: express.Request, res: express.Response) => {
   try {
-    const { email, password } = req.body;
+    const { emailOrPhone, password } = req.body;   
 
-    if (!email || !password) {
-      return res.status(400).send({ message: "Incorrect Email or Password", success: false });
+    if (!emailOrPhone || !password) {
+      return res.status(400).send({ message: "Incorrect Email/Phone or Password", success: false });
     }
 
-    const seller = await Seller.findOne({ email }).select('+authentication.password');
+    const seller = await getSellerByEmailOrPhone(emailOrPhone).select('+authentication.password');
     if (!seller) {
       return res.status(400).send({ message: "Seller not found!", success: false });
     }
 
     const isMatch = await comparePasswords(password, seller.authentication.password);
     if (!isMatch) {
-      return res.status(400).send({ message: "Invalid Email or password", success: false });
+      return res.status(400).send({ message: "Invalid password", success: false });
     }
 
     const token = jwt.sign({ id: seller._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -102,8 +109,8 @@ export const loginSellerController = async (req: express.Request, res: express.R
 // LOGOUT SELLER ========================================
 export const logoutSellerController = async (req: express.Request, res: express.Response) => {
   try {
-    const { sellerId } = req.params;
-    const seller = await Seller.findById(sellerId);
+    const { id } = req.params;
+    const seller = await getSellerById(id);
     if (!seller) {
       return res.status(400).send({ message: "Seller not found", success: false });
     }
@@ -119,11 +126,11 @@ export const logoutSellerController = async (req: express.Request, res: express.
   }
 };
 
-// REFRESH TOKEN ========================================
-export const refreshTokenSellerController = async (req: express.Request, res: express.Response) => {
+// // REFRESH TOKEN ========================================
+export const refreshSellerTokenController = async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
-    const seller = await Seller.findById(id);
+    const seller = await getSellerById(id);
     if (!seller) {
       return res.status(400).send({ message: "Seller not found", success: false });
     }
@@ -135,25 +142,47 @@ export const refreshTokenSellerController = async (req: express.Request, res: ex
     res.cookie(appCookieConst, newToken, { domain: 'localhost', path: '/' });
     return res.status(200).send({ message: "Token refreshed", success: true, seller, newToken });
   } catch (error) {
-    console.error("Error refreshing token:", error);
+    printConsoleLogs("Error refreshing token:", error);
     return res.status(500).send({ message: "Failed to refresh token", success: false });
   }
 };
+
+// GET ALL SELLERs  ========================================
+export const getAllSellerController = async (req: express.Request, res: express.Response) => {
+  try {
+    const sellers = await getSellers();
+    printConsoleLog("Here=====")
+    return res.status(200).send({ message: "Sellers fetched", success: true, data: sellers });
+  } catch(error) {
+    printConsoleLogs("==========",error, "==========", `${"some"}`)
+    return res.status(500).send({ message: "Unable to fetch Sellers", success: false });
+  }
+}
 
 // UPDATE SELLER ========================================
 export const updateSellerController = async (req: express.Request, res: express.Response) => {
   try {
     const { id } = req.params;
-    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+    if (!id) {
       return res.status(400).send({ message: "Invalid Seller ID!", success: false });
     }
 
-    const seller = await Seller.findById(id);
+    const seller = await getSellerById(id);
     if (!seller) {
       return res.status(400).send({ message: "Seller not found!", success: false });
     }
 
-    const { fullName, email, userPhoneNumber, gender, bankDetails, profilePicture, panPicture, storeName, storeLocation, storeGstNumber, storeContactDetails, storeTiming } = req.body;
+    const { fullName, email, userPhoneNumber, gender, bankDetails, profilePicture, panPicture} = req.body;
+
+     // Check if the new userPhoneNumber is the same as the current one
+    if (userPhoneNumber !== seller.userPhoneNumber) {
+      // Check if the new userPhoneNumber already exists in the database
+      const existingSeller = await getSellerByPhone(userPhoneNumber);
+      if (existingSeller && existingSeller._id.toString() !== id) {
+        // If it exists and belongs to a different seller, throw an error
+        return res.status(400).send({ message: "User phone number already exists", success: false });
+      }
+    }
 
     if (fullName) seller.fullName = fullName;
     if (email) seller.email = email;
@@ -163,51 +192,13 @@ export const updateSellerController = async (req: express.Request, res: express.
     if (profilePicture) seller.profilePicture = profilePicture;
     if (panPicture) seller.panPicture = panPicture;
 
-    if (storeName) seller.store.name = storeName;
-    if (storeLocation) seller.store.location = storeLocation;
-    if (storeGstNumber) seller.store.gstNumber = storeGstNumber;
-    if (storeContactDetails) seller.store.contactDetails = storeContactDetails;
-    if (storeTiming) seller.store.timing = storeTiming;
-
     await seller.save();
 
-    const updatedSeller = await Seller.findById(id);
+    const updatedSeller = await getSellerById(id);
 
     return res.status(200).send({ message: "Seller updated", success: true, data: updatedSeller });
   } catch (error) {
     printConsoleLogs("==========", error, "==========", "some");
     return res.status(500).send({ message: "Failed to update seller", success: false });
-  }
-};
-
-// ADD STORE ========================================
-export const addStoreController = async (req: express.Request, res: express.Response) => {
-  try {
-    const { id } = req.params;
-    const seller = await Seller.findById(id);
-    if (!seller) {
-      return res.status(400).send({ message: "Seller not found", success: false });
-    }
-
-    const { storeName, storeLocation, storeGstNumber, storeContactDetails, storeTiming } = req.body;
-
-    if (!storeName || !storeLocation || !storeGstNumber || !storeContactDetails || !storeTiming) {
-      return res.status(400).send({ message: "Please fill all store details", success: false });
-    }
-
-    seller.store = {
-      name: storeName,
-      location: storeLocation,
-      gstNumber: storeGstNumber,
-      contactDetails: storeContactDetails,
-      timing: storeTiming,
-    };
-
-    await seller.save();
-
-    return res.status(200).send({ message: "Store added", success: true, data: seller });
-  } catch (error) {
-    console.error("Error adding store:", error);
-    return res.status(500).send({ message: "Failed to add store", success: false });
   }
 };

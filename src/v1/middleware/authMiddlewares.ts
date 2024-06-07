@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import {get, merge} from "lodash";
-import { getUserBySessionToken } from "../controller/user/userHelper";
+import { getUserBySessionToken } from "../modules/user/controller/userHelper";
 import { printConsoleLog } from "../../utils/printConsoleLog";
 import { appCookieConst } from "../../common/appConstants";
 

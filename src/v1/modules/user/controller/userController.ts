@@ -1,10 +1,10 @@
 import express from "express";
 import { createUser, deleteUserById, getUsers, getUserByEmail, getUserById, getUserByPhone, updateUserById } from "./userHelper";
-import { comparePasswords, encryptPassword } from "../../../utils/encryptDecrypt";
+import { comparePasswords, encryptPassword } from "../../../../utils/encryptDecrypt";
 import jwt from "jsonwebtoken"
-import "../../../common/appConstants"
-import {printConsoleLog, printConsoleLogs} from "../../../utils/printConsoleLog"
-import { appCookieConst } from "../../../common/appConstants";
+import "../../../../common/appConstants"
+import {printConsoleLog, printConsoleLogs} from "../../../../utils/printConsoleLog"
+import { appCookieConst } from "../../../../common/appConstants";
 
 // REGISTER NEW USER. ========================================
 export const registerUserController = async (req: express.Request, res: express.Response) => {
@@ -94,8 +94,8 @@ export const loginUserController = async (req: express.Request, res: express.Res
 // LOGOUT USER ========================================
 export const logoutUserController = async (req: express.Request, res: express.Response) => {
   try {
-    const { userId } = req.params;
-    const user = await getUserById(userId);
+    const { id } = req.params;
+    const user = await getUserById(id);
     if (!user) {
       return res.status(400).send({ message: "User not found", success: false });
     }
