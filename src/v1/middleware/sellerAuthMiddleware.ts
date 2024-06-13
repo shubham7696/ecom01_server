@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { get, merge } from "lodash";
 import { printConsoleLog } from "../../utils/printConsoleLog";
-import { getSellerBySessionToken } from "../modules/seller/controller/sellerHelper";
+import { getSellerBySessionToken } from "../modules/seller/controller/seller/sellerHelper";
 import { appCookieConst } from "../../common/appConstants";
 import { StoreModel } from "../modules/seller/models/storeModel";
 
@@ -44,9 +44,28 @@ export const isSellerOwner = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-
-
 export const isStoreOwnership = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { storeId } = req.params;
+    const sellerId = get(req, "identity._id") as string;
+
+    const store = await StoreModel.findById(storeId);
+    if (!store) {
+      return res.status(404).send({ message: "Store not found", success: false });
+    }
+
+    if (store.owner.toString() !== sellerId.toString()) {
+      return res.status(403).send({ message: "Unauthorized action", success: false });
+    }
+
+    next();
+  } catch (error) {
+    console.error("Error checking store ownership:", error);
+    return res.status(500).send({ message: "Failed to verify ownership", success: false });
+  }
+};
+
+export const isProductOwnership = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { storeId } = req.params;
     const sellerId = get(req, "identity._id") as string;

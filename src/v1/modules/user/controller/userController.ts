@@ -137,7 +137,10 @@ export const refreshTokenController = async (req: express.Request, res: express.
 // GET ALL USERs  ========================================
 export const getAllUserController = async (req: express.Request, res: express.Response) => {
   try {
-    const users = await getUsers();
+    const users = await getUsers(
+      {},
+      { _id: 1, fullName: 1, email: 1, userPhoneNumber: 1, gender: 1, profilePicture: 1, __v: 1 }
+    );
     return res.status(200).send({ message: "Users fetched", success: true, data: users });
   } catch(error) {
     printConsoleLogs("==========",error, "==========", `${"some"}`)

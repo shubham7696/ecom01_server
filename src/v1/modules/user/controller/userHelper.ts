@@ -5,7 +5,7 @@ export const UserModel = mongoose.model("User", UserSchema);
 
 // get user by different methods.
 // Fetch users from the database, including only the necessary fields
-export const getUsers = () => UserModel.find({}, { _id: 1, fullName: 1, email: 1, userPhoneNumber: 1, gender: 1, profilePicture: 1, __v: 1 });
+export const getUsers = (query: {}, projections: {}) => UserModel.find(query, projections);
 
 export const getUserByEmail = (email: String) => UserModel.findOne({email});
 export const getUserByPhone = (userPhoneNumber: String) => UserModel.findOne({userPhoneNumber});
@@ -18,3 +18,5 @@ export const createUser = (values: Record<string,any>) => new UserModel(values).
 export const deleteUserById = (id: String) => UserModel.findOneAndDelete({_id: id});
 // update user
 export const updateUserById = (id: String, values: Record<string,any>) => UserModel.findByIdAndUpdate({_id: id}, values);
+
+
