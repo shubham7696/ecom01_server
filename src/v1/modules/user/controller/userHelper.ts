@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import { UserSchema } from "../models/userModel";
+import { UserModel } from "../models/userModel";
 
-export const UserModel = mongoose.model("User", UserSchema);
 
 // get user by different methods.
 // Fetch users from the database, including only the necessary fields

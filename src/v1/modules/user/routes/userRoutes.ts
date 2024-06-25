@@ -1,6 +1,25 @@
-import express from 'express';
-import { registerUserController, loginUserController, getAllUserController, deleteUserController, updateUserController, logoutUserController, refreshTokenController } from '../controller/userController';
-import { isAuthenticated } from '../../../middleware/authMiddlewares';
+import express from "express";
+import {
+  registerUserController,
+  loginUserController,
+  getAllUserController,
+  deleteUserController,
+  updateUserController,
+  logoutUserController,
+  refreshTokenController,
+} from "../controller/userController";
+import { isAuthenticated } from "../../../middleware/authMiddlewares";
+import {
+  getNewlyAddedProductsController,
+  getProductsByCategoryController,
+  getProductsByDiscountController,
+  getProductsByGenderController,
+} from "../controller/products/productController";
+import {
+  addProductToCart,
+  deleteCartItem,
+  updateCartItemQuantity,
+} from "../controller/carts/CartsController";
 
 // router object
 const router = express.Router();
@@ -30,5 +49,15 @@ router.patch("/refreshToken/:id", refreshTokenController);
 router.patch("/logoutUser/:id", logoutUserController);
 // add middlewares
 
+// User products routes
+router.get("/products/newly-added", getNewlyAddedProductsController);
+router.get("/products/discount", getProductsByDiscountController);
+router.get("/products/category", getProductsByCategoryController);
+router.get("/products/gender", getProductsByGenderController);
+
+router.post("/cart", isAuthenticated, addProductToCart);
+// router.put("/cart/item", isAuthenticated, updateCartItemQuantity);
+// router.delete("/cart/item", isAuthenticated, deleteCartItem);
+// router.get("/cart", isAuthenticated, getCartItems);
 
 export default router;

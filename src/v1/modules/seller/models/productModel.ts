@@ -120,6 +120,12 @@ const ProductSchema: Schema = new Schema(
       of: String,
       default: {},
     },
+    gender: {
+      type: String,
+      enum: ["male", "female", "unisex", "all"],
+      default: "all",
+      required: true,
+    },
     // seller: {
     //   type: Schema.Types.ObjectId,
     //   ref: 'Sellers',

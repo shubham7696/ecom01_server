@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { get, merge } from "lodash";
-import { printConsoleLog } from "../../utils/printConsoleLog";
+import { printConsoleLogs } from "../../utils/printConsoleLog";
 import { getSellerBySessionToken } from "../modules/seller/controller/seller/sellerHelper";
 import { appCookieConst } from "../../common/appConstants";
 import { StoreModel } from "../modules/seller/models/storeModel";
@@ -24,7 +24,7 @@ export const isSellerAuthenticated = async (req: Request, res: Response, next: N
 
     next();
   } catch (error) {
-    printConsoleLog(error);
+    printConsoleLogs(error);
     return res.status(400).send({ message: "Authorization error", success: false });
   }
 };
@@ -39,7 +39,7 @@ export const isSellerOwner = async (req: Request, res: Response, next: NextFunct
 
     next();
   } catch (error) {
-    printConsoleLog(error);
+    printConsoleLogs(error);
     return res.status(400).send({ message: "Authorization error", success: false });
   }
 };

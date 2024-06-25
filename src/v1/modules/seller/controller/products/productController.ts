@@ -10,7 +10,7 @@ import {
 import { getStoreById } from "../storeHelper";
 import { ProductDoc, ProductModel } from "../../models/productModel";
 import mongoose from "mongoose";
-import { printConsoleLog, printConsoleLogs } from "../../../../../../src/utils/printConsoleLog";
+import { printConsoleLogs } from "../../../../../../src/utils/printConsoleLog";
 
 // Create a new product
 export const addNewProductController = async (req: Request, res: Response) => {
@@ -27,7 +27,7 @@ export const addNewProductController = async (req: Request, res: Response) => {
 
     const newProduct = await createProduct(productModel);
 
-    printConsoleLog(`=============== \n ${newProduct} \n =============`);
+    printConsoleLogs(`=============== \n ${newProduct} \n =============`);
     // Check if newProduct is valid and has an _id field
     if (!newProduct || !newProduct._id) {
       return res.status(500).send({ message: "Failed to create product", success: false });

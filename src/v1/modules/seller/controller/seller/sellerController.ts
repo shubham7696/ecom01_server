@@ -1,7 +1,7 @@
 import express from "express";
 import { comparePasswords, encryptPassword } from "../../../../../utils/encryptDecrypt";
 import jwt from "jsonwebtoken";
-import { printConsoleLog, printConsoleLogs } from "../../../../../utils/printConsoleLog";
+import { printConsoleLogs } from "../../../../../utils/printConsoleLog";
 import { appCookieConst } from "../../../../../common/appConstants";
 import {
   createSeller,
@@ -80,7 +80,7 @@ export const registerSellerController = async (req: express.Request, res: expres
 
     return res.status(200).send({ message: "New Seller added", success: true, seller: newSeller });
   } catch (error) {
-    printConsoleLog(error);
+    printConsoleLogs(error);
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((err: any) => err.message);
       return res.status(400).send({ message: messages.join(", "), success: false });
@@ -175,7 +175,7 @@ export const refreshSellerTokenController = async (req: express.Request, res: ex
 export const getAllSellerController = async (req: express.Request, res: express.Response) => {
   try {
     const sellers = await getSellers();
-    printConsoleLog("Here=====");
+    printConsoleLogs("Here=====");
     return res.status(200).send({ message: "Sellers fetched", success: true, data: sellers });
   } catch (error) {
     printConsoleLogs("==========", error, "==========", `${"some"}`);

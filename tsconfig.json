@@ -8,6 +8,7 @@
     },
     "include": [
         "src/**/*",
-        "src/*.d.ts"
+        "src/*.d.ts",
+        "src/v1/custom.d.ts"
 , "index.ts"    ]
 }
