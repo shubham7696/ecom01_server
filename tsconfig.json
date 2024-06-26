@@ -1,7 +1,6 @@
 {
     "compilerOptions": {
         "module": "NodeNext",
-        "moduleResolution": "node",
         "baseUrl": "src",
         "outDir": "dist",
         "sourceMap": true,
@@ -10,5 +9,5 @@
     "include": [
         "src/**/*",
         "src/*.d.ts"
-    ]
+, "index.ts"    ]
 }
