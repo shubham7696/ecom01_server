@@ -5,6 +5,7 @@ import { getUserBySessionToken } from "../modules/user/controller/userHelper";
 import { printConsoleLogs } from "../../utils/printConsoleLog";
 import { appCookieConst } from "../../common/appConstants";
 
+// ========== NOT IN USE RIGHT NOW ==========
 export const authMiddleware = async (
   req: Request,
   res: Response,
@@ -30,7 +31,6 @@ export const authMiddleware = async (
       }
     });
   } catch (error) {
-    console.log("=========== catch ", error);
     res.status(401).send({
       message: "Invalid token",
       success: false,
@@ -39,6 +39,7 @@ export const authMiddleware = async (
 };
 
 // // trying with cookies
+// ========== Using for the user authentication ==========
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   try {
 
@@ -52,26 +53,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     if (!existingUser) {
       return res.status(403).send({ message: "User Not found", success: false });
     }
-    printConsoleLogs("##########",existingUser,"#########");
-    //req.userInfo = existingUser;
-
-    merge(req, { identity: existingUser });
-
-    next();
-  } catch (error) {
-    printConsoleLogs(error);
-    return res.status(400).send({ message: "Authorization error", success: false });
-  }
-};
-
-export const isOwner = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-    const currentUserId = get(res, "identity._id") as string;
-    if (!currentUserId) {
-      return res.status(403).send({ message: "UnAuthorized user", success: false });
-    }
-
+    merge(req, { userInfo: existingUser });
     next();
   } catch (error) {
     printConsoleLogs(error);

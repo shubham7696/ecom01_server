@@ -1,5 +1,5 @@
 import express from 'express';
-import { isProductOwnership } from '../../../middleware/sellerAuthMiddleware';
+
 import {
   addNewProductController,
   getProductByIdController,

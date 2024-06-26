@@ -8,7 +8,7 @@ import {
   logoutUserController,
   refreshTokenController,
 } from "../controller/userController";
-import { isAuthenticated } from "../../../middleware/authMiddlewares";
+import { isAuthenticated } from "../../../middleware/userAuthMiddlewares";
 import {
   getNewlyAddedProductsController,
   getProductsByCategoryController,
@@ -18,6 +18,7 @@ import {
 import {
   addProductToCart,
   deleteCartItem,
+  getCartItems,
   updateCartItemQuantity,
 } from "../controller/carts/CartsController";
 
@@ -55,9 +56,10 @@ router.get("/products/discount", getProductsByDiscountController);
 router.get("/products/category", getProductsByCategoryController);
 router.get("/products/gender", getProductsByGenderController);
 
+
+router.put("/cart/item", isAuthenticated, updateCartItemQuantity);
+router.delete("/cart/item/:productId", isAuthenticated, deleteCartItem);
 router.post("/cart", isAuthenticated, addProductToCart);
-// router.put("/cart/item", isAuthenticated, updateCartItemQuantity);
-// router.delete("/cart/item", isAuthenticated, deleteCartItem);
-// router.get("/cart", isAuthenticated, getCartItems);
+router.get("/cart", isAuthenticated, getCartItems);
 
 export default router;

@@ -85,3 +85,21 @@ export const isProductOwnership = async (req: Request, res: Response, next: Next
     return res.status(500).send({ message: "Failed to verify ownership", success: false });
   }
 };
+
+
+// ========== NOT IN USE RIGHT NOW ==========
+// will be used in store api authentication 
+export const isOwner = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+    const currentUserId = get(res, "identity._id") as string;
+    if (!currentUserId) {
+      return res.status(403).send({ message: "UnAuthorized user", success: false });
+    }
+
+    next();
+  } catch (error) {
+    printConsoleLogs(error);
+    return res.status(400).send({ message: "Authorization error", success: false });
+  }
+};
