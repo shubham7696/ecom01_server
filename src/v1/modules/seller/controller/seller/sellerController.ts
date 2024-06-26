@@ -1,9 +1,17 @@
-import express from 'express';
-import { comparePasswords, encryptPassword } from '../../../../utils/encryptDecrypt';
-import jwt from 'jsonwebtoken';
-import { printConsoleLog, printConsoleLogs } from '../../../../utils/printConsoleLog';
-import { appCookieConst } from '../../../../common/appConstants';
-import { createSeller, getSellerByEmail, getSellerByEmailOrPhone, getSellerById, getSellerByPan, getSellerByPhone, getSellers } from './sellerHelper';
+import express from "express";
+import { comparePasswords, encryptPassword } from "../../../../../utils/encryptDecrypt";
+import jwt from "jsonwebtoken";
+import { printConsoleLogs } from "../../../../../utils/printConsoleLog";
+import { appCookieConst } from "../../../../../common/appConstants";
+import {
+  createSeller,
+  getSellerByEmail,
+  getSellerByEmailOrPhone,
+  getSellerById,
+  getSellerByPan,
+  getSellerByPhone,
+  getSellers,
+} from "./sellerHelper";
 
 // // FIND BEFORE REGISTER NEW SELLER ========================================
 // export const findSellerController = async (req: express.Request, res: express.Response) => {
@@ -25,7 +33,17 @@ import { createSeller, getSellerByEmail, getSellerByEmailOrPhone, getSellerById,
 // REGISTER NEW SELLER ========================================
 export const registerSellerController = async (req: express.Request, res: express.Response) => {
   try {
-    const { fullName, email, userPhoneNumber, pan, password, gender, bankDetails, profilePicture, panPicture } = req.body;
+    const {
+      fullName,
+      email,
+      userPhoneNumber,
+      pan,
+      password,
+      gender,
+      bankDetails,
+      profilePicture,
+      panPicture,
+    } = req.body;
 
     if (!fullName || !email || !password || !userPhoneNumber || !pan) {
       return res.status(400).send({ message: "Please fill all mandatory details", success: false });
@@ -60,15 +78,18 @@ export const registerSellerController = async (req: express.Request, res: expres
       authentication: { password: hashedPassword },
     });
 
-    return res.status(200).send({message: "New Seller added", success: true, seller: newSeller});
+    return res.status(200).send({ message: "New Seller added", success: true, seller: newSeller });
   } catch (error) {
-    printConsoleLog(error);
+    printConsoleLogs(error);
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((err: any) => err.message);
       return res.status(400).send({ message: messages.join(", "), success: false });
     } else if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
-      return res.status(400).send({ message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`, success: false });
+      return res.status(400).send({
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`,
+        success: false,
+      });
     } else {
       return res.status(500).send({ message: "Unable to register seller", success: false });
     }
@@ -78,13 +99,13 @@ export const registerSellerController = async (req: express.Request, res: expres
 // // LOGIN SELLER ========================================
 export const loginSellerController = async (req: express.Request, res: express.Response) => {
   try {
-    const { emailOrPhone, password } = req.body;   
+    const { emailOrPhone, password } = req.body;
 
     if (!emailOrPhone || !password) {
       return res.status(400).send({ message: "Incorrect Email/Phone or Password", success: false });
     }
 
-    const seller = await getSellerByEmailOrPhone(emailOrPhone).select('+authentication.password');
+    const seller = await getSellerByEmailOrPhone(emailOrPhone).select("+authentication.password");
     if (!seller) {
       return res.status(400).send({ message: "Seller not found!", success: false });
     }
@@ -98,7 +119,10 @@ export const loginSellerController = async (req: express.Request, res: express.R
     seller.authentication.sessionToken = token;
     await seller.save();
 
-    res.cookie(appCookieConst, seller.authentication.sessionToken, { domain: 'localhost', path: '/' });
+    res.cookie(appCookieConst, seller.authentication.sessionToken, {
+      domain: "localhost",
+      path: "/",
+    });
     return res.status(200).send({ message: "Login Success", success: true, data: seller, token });
   } catch (error) {
     printConsoleLogs("==========", error, "==========", "some");
@@ -139,7 +163,7 @@ export const refreshSellerTokenController = async (req: express.Request, res: ex
     seller.authentication.sessionToken = newToken;
     await seller.save();
 
-    res.cookie(appCookieConst, newToken, { domain: 'localhost', path: '/' });
+    res.cookie(appCookieConst, newToken, { domain: "localhost", path: "/" });
     return res.status(200).send({ message: "Token refreshed", success: true, seller, newToken });
   } catch (error) {
     printConsoleLogs("Error refreshing token:", error);
@@ -151,13 +175,13 @@ export const refreshSellerTokenController = async (req: express.Request, res: ex
 export const getAllSellerController = async (req: express.Request, res: express.Response) => {
   try {
     const sellers = await getSellers();
-    printConsoleLog("Here=====")
+    printConsoleLogs("Here=====");
     return res.status(200).send({ message: "Sellers fetched", success: true, data: sellers });
-  } catch(error) {
-    printConsoleLogs("==========",error, "==========", `${"some"}`)
+  } catch (error) {
+    printConsoleLogs("==========", error, "==========", `${"some"}`);
     return res.status(500).send({ message: "Unable to fetch Sellers", success: false });
   }
-}
+};
 
 // UPDATE SELLER ========================================
 export const updateSellerController = async (req: express.Request, res: express.Response) => {
@@ -172,15 +196,18 @@ export const updateSellerController = async (req: express.Request, res: express.
       return res.status(400).send({ message: "Seller not found!", success: false });
     }
 
-    const { fullName, email, userPhoneNumber, gender, bankDetails, profilePicture, panPicture} = req.body;
+    const { fullName, email, userPhoneNumber, gender, bankDetails, profilePicture, panPicture } =
+      req.body;
 
-     // Check if the new userPhoneNumber is the same as the current one
+    // Check if the new userPhoneNumber is the same as the current one
     if (userPhoneNumber !== seller.userPhoneNumber) {
       // Check if the new userPhoneNumber already exists in the database
       const existingSeller = await getSellerByPhone(userPhoneNumber);
       if (existingSeller && existingSeller._id.toString() !== id) {
         // If it exists and belongs to a different seller, throw an error
-        return res.status(400).send({ message: "User phone number already exists", success: false });
+        return res
+          .status(400)
+          .send({ message: "User phone number already exists", success: false });
       }
     }
 

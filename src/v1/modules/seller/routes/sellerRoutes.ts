@@ -1,6 +1,13 @@
-import express from 'express';
-import {registerSellerController, loginSellerController, getAllSellerController, logoutSellerController, refreshSellerTokenController, updateSellerController} from "../controller/sellerController"
-import { isSellerAuthenticated } from '../../../middleware/sellerAuthMiddleware';
+import express from "express";
+import {
+  registerSellerController,
+  loginSellerController,
+  getAllSellerController,
+  logoutSellerController,
+  refreshSellerTokenController,
+  updateSellerController,
+} from "../controller/seller/sellerController";
+import { isSellerAuthenticated } from "../../../middleware/sellerAuthMiddleware";
 
 // router object
 const router = express.Router();
@@ -27,7 +34,5 @@ router.patch("/refreshSellerToken/:id", refreshSellerTokenController);
 
 // LOGOUT USER || PATCH
 router.patch("/logoutSeller/:id", logoutSellerController);
-
-
 
 export default router;

@@ -1,6 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { printConsoleLog, printConsoleLogs } from '../../../../utils/printConsoleLog';
+import { printConsoleLogs } from '../../../../utils/printConsoleLog';
 import { appCookieConst } from '../../../../common/appConstants';
 import { getStores, getSellerStores, getStoreById, getStoreByEmail, getStoreByPhone, createStore, deleteStoreById, updateStoreById } from './storeHelper';
 
