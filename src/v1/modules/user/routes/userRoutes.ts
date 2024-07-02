@@ -7,6 +7,7 @@ import {
   updateUserController,
   logoutUserController,
   refreshTokenController,
+  userProfileController,
 } from "../controller/userController";
 import { isAuthenticated } from "../../../middleware/userAuthMiddlewares";
 import {
@@ -42,6 +43,9 @@ router.delete("/deleteUser/:id", deleteUserController);
 
 // UPDATE USER || PATCH
 router.patch("/updateUser/:id", updateUserController);
+
+// User profile data
+router.post("/updateUser/:id", userProfileController);
 
 // REFRESH USER TOKEN || PATCH
 router.patch("/refreshToken/:id", refreshTokenController);
