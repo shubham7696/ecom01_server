@@ -168,6 +168,16 @@ export const deleteUserController = async (req: express.Request, res: express.Re
   }
 };
 
+// USER PROFILE DETAIL =================================
+export const userProfileController = async (req: express.Request, res: express.Response) => {
+  try {
+
+  } catch (error){
+    return res.status(500).send({messages: "Failed to get user", success: false})
+  }
+}
+
+
 // UPDATE USER  ========================================
 export const updateUserController = async (req: express.Request, res: express.Response) => {
   try {

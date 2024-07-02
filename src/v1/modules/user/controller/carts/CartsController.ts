@@ -14,9 +14,9 @@ export const addProductToCart = async (req: IUserRequest, res: Response) => {
   const { productId, quantity } = req.body;
 
     printConsoleLogs("###############");
-
     printConsoleLogs("called add user product to cart");
     printConsoleLogs("###############");
+    
   try {
     const user = await UserModel.findById(userId);
     if (!user) {
